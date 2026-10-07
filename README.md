@@ -1,67 +1,53 @@
 # Flix API
 
-API REST em desenvolvimento para o projeto Flix. A API utiliza Django REST
-Framework e implementa operações CRUD para gêneros, atores, filmes e avaliações.
-As rotas da API estão versionadas sob o prefixo `/api/v1/`. Ainda não há
-autenticação própria da API.
+API REST em desenvolvimento para gerenciar gêneros, atores, filmes e avaliações.
+O backend utiliza Django e Django REST Framework, com endpoints versionados sob
+o prefixo `/api/v1/`.
 
 ## Tecnologias
 
-- **Python** — linguagem da aplicação.
-- **Django 6.1.1** — framework web e ORM.
-- **Django REST Framework 3.18.1** — implementação das views genéricas,
-  serializers e respostas da API.
-- **SQLite** — banco configurado para desenvolvimento (`db.sqlite3`).
-- **Django Admin** — interface administrativa para gerenciar gêneros.
+- **Python**
+- **Django 6.1.1** — framework web, ORM e administração.
+- **Django REST Framework 3.18.1** — serializers, views genéricas e API navegável.
+- **SQLite** — banco de dados local (`db.sqlite3`).
 
-## Funcionalidades
+As versões das dependências Python estão fixadas em `requirements.txt`.
 
-- Operações CRUD para gêneros, atores, filmes e avaliações.
-- Gerenciar gêneros pelo painel administrativo do Django.
+## Recursos e modelo de dados
 
-## Endpoints da API
+| Recurso | Campos |
+| --- | --- |
+| Gênero | `id`, `name` (até 200 caracteres) |
+| Ator | `id`, `name` (até 200 caracteres), `birthday` (opcional), `nationality` (opcional: `USA` ou `BRAZIL`) |
+| Filme | `id`, `title` (até 255 caracteres), `genre` (gênero), `release_date` (opcional), `actor` (lista de atores), `resume` (opcional; até 500 caracteres) e `rate` (média calculada, somente leitura) |
+| Avaliação | `id`, `movie` (filme), `stars` (inteiro de 0 a 5), `comment` (opcional) |
 
-Todas as rotas da API usam o prefixo `/api/v1/` e aceitam/retornam JSON.
-Substitua `<id>` pelo identificador numérico do recurso. As rotas de detalhe
-terminam com a barra `/`.
+Filmes estão associados a um gênero e a zero ou mais atores. Avaliações estão
+associadas a um filme. A média (`rate`) é calculada a partir das estrelas das
+avaliações e arredondada a uma casa decimal; filmes sem avaliações retornam
+`null` para esse campo.
 
-| Método | Caminho | Descrição | Status de sucesso |
-| --- | --- | --- | --- |
-| `GET` | `/api/v1/genres/` | Lista todos os gêneros. | `200 OK` |
-| `POST` | `/api/v1/genres/` | Cria um gênero. | `201 Created` |
-| `GET` | `/api/v1/genres/<id>/` | Consulta um gênero. | `200 OK` |
-| `PUT` | `/api/v1/genres/<id>/` | Atualiza um gênero. | `200 OK` |
-| `PATCH` | `/api/v1/genres/<id>/` | Atualiza parcialmente um gênero. | `200 OK` |
-| `DELETE` | `/api/v1/genres/<id>/` | Exclui um gênero. | `204 No Content` |
+## Endpoints
 
-Os mesmos métodos estão disponíveis para atores, filmes e avaliações:
+Todos os endpoints de recursos aceitam e retornam JSON. As rotas de detalhe
+terminam com `/`; substitua `<id>` por um identificador existente.
 
-| Recurso | Lista e criação | Consulta, atualização e exclusão |
-| --- | --- | --- |
-| Atores | `/api/v1/actors/` | `/api/v1/actors/<id>/` |
-| Filmes | `/api/v1/movies/` | `/api/v1/movies/<id>/` |
-| Avaliações | `/api/v1/reviews/` | `/api/v1/reviews/<id>/` |
+| Recurso | Listar | Criar | Consultar | Atualizar | Atualizar parcialmente | Excluir |
+| --- | --- | --- | --- | --- | --- | --- |
+| Gêneros | `GET /api/v1/genres/` | `POST /api/v1/genres/` | `GET /api/v1/genres/<id>/` | `PUT /api/v1/genres/<id>/` | `PATCH /api/v1/genres/<id>/` | `DELETE /api/v1/genres/<id>/` |
+| Atores | `GET /api/v1/actors/` | `POST /api/v1/actors/` | `GET /api/v1/actors/<id>/` | `PUT /api/v1/actors/<id>/` | `PATCH /api/v1/actors/<id>/` | `DELETE /api/v1/actors/<id>/` |
+| Filmes | `GET /api/v1/movies/` | `POST /api/v1/movies/` | `GET /api/v1/movies/<id>/` | `PUT /api/v1/movies/<id>/` | `PATCH /api/v1/movies/<id>/` | `DELETE /api/v1/movies/<id>/` |
+| Avaliações | `GET /api/v1/reviews/` | `POST /api/v1/reviews/` | `GET /api/v1/reviews/<id>/` | `PUT /api/v1/reviews/<id>/` | `PATCH /api/v1/reviews/<id>/` | `DELETE /api/v1/reviews/<id>/` |
 
-### Listar gêneros
+As rotas usam as views genéricas `ListCreateAPIView` e
+`RetrieveUpdateDestroyAPIView` do Django REST Framework. Por padrão, elas
+retornam `200 OK` para listagem, consulta e atualização, `201 Created` para
+criação, `204 No Content` para exclusão, `400 Bad Request` para dados inválidos
+e `404 Not Found` quando o recurso não existe.
 
-`GET /api/v1/genres/`
+### Exemplos de criação
 
-Exemplo de resposta:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Drama"
-  }
-]
-```
-
-### Criar gênero
-
-`POST /api/v1/genres/`
-
-Envie um objeto JSON com o cabeçalho `Content-Type: application/json`:
+Gênero — `POST /api/v1/genres/`:
 
 ```json
 {
@@ -69,92 +55,83 @@ Envie um objeto JSON com o cabeçalho `Content-Type: application/json`:
 }
 ```
 
-Exemplo de resposta (`201 Created`):
+Ator — `POST /api/v1/actors/`:
 
 ```json
 {
-  "id": 1,
-  "name": "Drama"
+  "name": "Nome do ator",
+  "birthday": "1990-04-20",
+  "nationality": "BRAZIL"
 }
 ```
 
-### Consultar gênero
-
-`GET /api/v1/genres/1/`
-
-Exemplo de resposta:
+Filme — `POST /api/v1/movies/`:
 
 ```json
 {
-  "id": 1,
-  "name": "Drama"
+  "title": "Título do filme",
+  "genre": 1,
+  "release_date": "2024-05-10",
+  "actor": [1],
+  "resume": "Resumo do filme."
 }
 ```
 
-### Atualizar gênero
-
-`PUT /api/v1/genres/1/`
-
-Envie o nome atualizado em um objeto JSON:
+Avaliação — `POST /api/v1/reviews/`:
 
 ```json
 {
-  "name": "Aventura"
+  "movie": 1,
+  "stars": 5,
+  "comment": "Excelente filme."
 }
 ```
 
-Exemplo de resposta:
+Para criar ou atualizar relacionamentos, use os IDs dos registros relacionados.
+Envie JSON com `Content-Type: application/json`. Os serializers incluem todos
+os campos do respectivo modelo (`fields = '__all__'`); `rate` é somente leitura.
 
-```json
-{
-  "id": 1,
-  "name": "Aventura"
-}
-```
+### Validações e exclusões
 
-### Excluir gênero
+- A data de lançamento do filme não pode ser anterior a 1900.
+- O resumo do filme tem limite de 500 caracteres.
+- A nota de uma avaliação deve estar entre 0 e 5.
+- O gênero de um filme é obrigatório e usa `PROTECT`: gêneros associados a
+  filmes não podem ser excluídos.
+- A avaliação exige um filme. O relacionamento também usa `PROTECT`, então um
+  filme com avaliações associadas não pode ser excluído.
+- Exclusões bem-sucedidas respondem `204 No Content`, sem corpo de resposta.
 
-`DELETE /api/v1/genres/1/`
+## Administração
 
-A implementação retorna `204 No Content` sem body. Esse status indica que a
-exclusão foi concluída e, por definição, não inclui conteúdo ou mensagem na
-resposta.
+Os modelos `Genre`, `Actor`, `Movie` e `Review` estão registrados no Django
+Admin. Crie um usuário administrador e acesse `/admin/` para gerenciar os dados.
 
-As operações de detalhe retornam `404 Not Found` quando o identificador não
-corresponde a um gênero existente.
-
-## Estrutura do projeto
+## Estrutura
 
 ```text
 .
-├── app/
-│   ├── settings.py       # Configurações do Django e do SQLite
-│   ├── urls.py           # Prefixo /api/v1/ e inclusão das rotas das apps
-│   ├── asgi.py           # Entrada ASGI
-│   └── wsgi.py           # Entrada WSGI
-├── .gitignore            # Arquivos locais e gerados ignorados pelo Git
-├── actors/               # App de atores: modelos, serializers, views e rotas
-├── genres/               # App de gêneros: modelos, serializers, views e rotas
-├── movies/               # App de filmes: modelos, serializers, views e rotas
-├── reviews/              # App de avaliações: modelos, serializers, views e rotas
-├── requirements.txt      # Dependências Python fixadas
-├── manage.py             # Comandos administrativos do Django
-└── db.sqlite3            # Banco de dados local
+├── app/                  # Configurações e roteamento raiz
+├── actors/               # Modelo, serializer, views, rotas e admin de atores
+├── genres/               # Modelo, serializer, views, rotas e admin de gêneros
+├── movies/               # Modelo, serializer, views, rotas e admin de filmes
+├── reviews/              # Modelo, serializer, views, rotas e admin de avaliações
+├── .gitignore
+├── manage.py
+├── requirements.txt
+└── db.sqlite3            # Banco local, ignorado pelo Git
 ```
 
-O `.gitignore` exclui do controle de versão o ambiente virtual, caches e
-arquivos compilados do Python, o banco SQLite local, arquivos de ambiente
-(`.env`), pastas de saída locais e arquivos de editores/sistemas operacionais.
-Também ignora os arquivos `.py` dentro das pastas `migrations/`. O arquivo
-`.env.example` permanece versionável como modelo sem segredos. Arquivos que já
-estavam sendo acompanhados pelo Git continuam versionados até serem removidos
-explicitamente do índice.
+O `.gitignore` exclui ambientes virtuais, caches Python, banco SQLite local,
+arquivos `.env`, arquivos de editores e outros arquivos gerados. Também ignora
+arquivos Python sob `*/migrations/`. Portanto, migrações locais já existentes
+não são enviadas ao repositório; arquivos que já estavam rastreados pelo Git
+continuam rastreados.
 
-## Como executar localmente
+## Executar localmente
 
-Requer Python compatível com Django 6.1.1.
-
-No PowerShell, na pasta do projeto:
+Requer uma versão de Python compatível com as dependências do projeto. No
+PowerShell, na raiz do repositório:
 
 ```powershell
 py -m venv venv
@@ -165,38 +142,48 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Como os arquivos de migração não são versionados neste projeto, execute
-`makemigrations` ao preparar uma cópia local nova para gerar as migrações a
-partir dos modelos. Em seguida, `migrate` aplica essas migrações ao banco de
-dados. Quando os modelos forem alterados, execute novamente `makemigrations`
-e depois `migrate`.
+Como as migrações estão ignoradas pelo Git, `makemigrations` precisa gerar os
+arquivos localmente a partir dos modelos antes de `migrate` criar/atualizar o
+banco. Repita os dois comandos depois de mudanças nos modelos.
 
-O `requirements.txt` fixa as versões das dependências diretas e transitivas
-registradas para o ambiente atual:
+A API fica disponível em `http://127.0.0.1:8000/api/v1/`. Por exemplo:
+`http://127.0.0.1:8000/api/v1/movies/`. As views do Django REST Framework
+também podem ser exploradas no navegador por meio da API navegável.
 
-```text
-asgiref==3.12.1
-Django==6.1.1
-djangorestframework==3.18.1
-sqlparse==0.6.0
-tzdata==2026.4
-```
-
-A API ficará disponível em `http://127.0.0.1:8000/`.
-
-Para acessar o painel administrativo, crie um usuário:
+Para acessar o painel administrativo:
 
 ```powershell
 python manage.py createsuperuser
 ```
 
-Depois, acesse `http://127.0.0.1:8000/admin/`.
+Em seguida, abra `http://127.0.0.1:8000/admin/`.
 
-## Observações
+## Verificações
 
-- As configurações atuais são voltadas ao desenvolvimento local. Antes de
-  publicar em produção, revise configurações como `DEBUG`, `SECRET_KEY` e
-  `ALLOWED_HOSTS`.
-- O arquivo `requirements.txt` foi gerado a partir dos pacotes instalados no
-  ambiente (`pip freeze`), então pode incluir dependências transitivas ou
-  instaladas que ainda não são utilizadas diretamente no código.
+Execute as verificações de configuração e testes com:
+
+```powershell
+python manage.py check
+python manage.py test
+```
+
+Os arquivos `tests.py` das apps ainda não contêm casos de teste. Para verificar
+se há mudanças de modelos que precisam de migração:
+
+```powershell
+python manage.py makemigrations --check --dry-run
+```
+
+## Configuração e limitações conhecidas
+
+- A configuração atual é para desenvolvimento: `DEBUG` está habilitado,
+  `ALLOWED_HOSTS` está vazio e a `SECRET_KEY` está definida diretamente em
+  `app/settings.py`. Não use essa configuração em produção; mova segredos para
+  variáveis de ambiente e siga a checklist de segurança do Django.
+- O projeto não define uma política própria de autenticação ou permissões da
+  API. A interface administrativa do Django possui seu próprio mecanismo de
+  autenticação.
+- O SQLite é usado como banco local de desenvolvimento.
+- Como os arquivos de migração são ignorados, ambientes diferentes podem
+  gerar migrações distintas. Versionar migrações é recomendável para compartilhar
+  um histórico consistente do esquema do banco em equipe.
