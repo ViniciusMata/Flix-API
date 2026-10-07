@@ -192,14 +192,6 @@ python manage.py createsuperuser
 
 Depois, acesse `http://127.0.0.1:8000/admin/`.
 
-## Testes
-
-Execute os testes do projeto com:
-
-```powershell
-python manage.py test
-```
-
 ## Observações
 
 - As configurações atuais são voltadas ao desenvolvimento local. Antes de
