@@ -160,9 +160,16 @@ No PowerShell, na pasta do projeto:
 py -m venv venv
 .\venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 ```
+
+Como os arquivos de migração não são versionados neste projeto, execute
+`makemigrations` ao preparar uma cópia local nova para gerar as migrações a
+partir dos modelos. Em seguida, `migrate` aplica essas migrações ao banco de
+dados. Quando os modelos forem alterados, execute novamente `makemigrations`
+e depois `migrate`.
 
 O `requirements.txt` fixa as versões das dependências diretas e transitivas
 registradas para o ambiente atual:
