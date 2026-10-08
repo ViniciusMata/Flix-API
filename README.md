@@ -146,9 +146,10 @@ Como as migrações estão ignoradas pelo Git, `makemigrations` precisa gerar os
 arquivos localmente a partir dos modelos antes de `migrate` criar/atualizar o
 banco. Repita os dois comandos depois de mudanças nos modelos.
 
-A API fica disponível em `http://127.0.0.1:8000/api/v1/`. Por exemplo:
-`http://127.0.0.1:8000/api/v1/movies/`. As views do Django REST Framework
-também podem ser exploradas no navegador por meio da API navegável.
+A base das rotas de recursos é `http://127.0.0.1:8000/api/v1/`. Por exemplo,
+acesse `http://127.0.0.1:8000/api/v1/movies/` para listar filmes. As views do
+Django REST Framework também podem ser exploradas no navegador por meio da API
+navegável.
 
 Para acessar o painel administrativo:
 
